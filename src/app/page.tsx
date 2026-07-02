@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { toBeatCard } from "@/lib/beat-helpers";
+
+export const dynamic = "force-dynamic";
 import { publicUrl } from "@/lib/r2";
 import BeatCard from "@/components/BeatCard";
 import HeroPlayer from "@/components/HeroPlayer";

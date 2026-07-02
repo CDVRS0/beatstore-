@@ -1,4 +1,6 @@
 import { prisma } from "@/lib/prisma";
+
+export const dynamic = "force-dynamic";
 import { formatPrice } from "@/lib/utils";
 
 export default async function AdminCustomersPage() {

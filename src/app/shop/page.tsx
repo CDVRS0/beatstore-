@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { toBeatCard } from "@/lib/beat-helpers";
+
+export const dynamic = "force-dynamic";
 import BeatCard from "@/components/BeatCard";
 import FilterSidebar from "@/components/FilterSidebar";
 import type { Metadata } from "next";

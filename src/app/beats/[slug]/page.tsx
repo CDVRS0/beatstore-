@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { publicUrl } from "@/lib/r2";
+
+export const dynamic = "force-dynamic";
 import { toBeatCard } from "@/lib/beat-helpers";
 import { getSiteUrl } from "@/lib/utils";
 import WaveformPlayer from "@/components/WaveformPlayer";
