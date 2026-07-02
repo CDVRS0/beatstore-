@@ -65,8 +65,7 @@ export default async function HomePage() {
               Beats built for<br />your world.
             </h1>
             <p className="mt-4 max-w-md text-sm text-lo md:text-base">
-              Lofi hip hop, amapiano, and miami bass, produced by CDVRS. Instant licensing, instant download, no
-              subscriptions, no middleman.
+               Beats by CDVRS. Instant licensing, instant download. Browse beats, filter by genre, mood, BPM, and key, and find the perfect beat for your next project.
             </p>
             <div className="mt-6 flex gap-3">
               <Link href="/shop" className="rounded-xs bg-blue px-5 py-3 text-sm font-bold text-hi transition hover:opacity-90">

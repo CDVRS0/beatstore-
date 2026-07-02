@@ -11,17 +11,16 @@ export default function Footer() {
               CDVRS<span className="text-blue">.</span>
             </div>
             <p className="mt-3 max-w-xs text-sm text-lo">
-              Beats made for artists building their own world. Lofi, amapiano, and miami bass, self-taught and
-              self-owned. Create Your World.
+              Beats made for artists building their own world. Create Your World.
             </p>
             <div className="mt-4 flex gap-4 text-sm text-lo">
-              <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className="hover:text-hi">
+              <a href="https://www.youtube.com/@CDVLabs" target="_blank" rel="noopener noreferrer" className="hover:text-hi">
                 YouTube
               </a>
-              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="hover:text-hi">
+              <a href="https://www.instagram.com/cdvlabs?igsh=Y3k0eng3ZGxrN2Yw&utm_source=qr" target="_blank" rel="noopener noreferrer" className="hover:text-hi">
                 Instagram
               </a>
-              <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" className="hover:text-hi">
+              <a href="https://www.tiktok.com/@cdvlabs" target="_blank" rel="noopener noreferrer" className="hover:text-hi">
                 TikTok
               </a>
             </div>
@@ -51,7 +50,7 @@ export default function Footer() {
 
         <div className="mt-10 flex flex-col gap-2 border-t border-line pt-6 text-xs text-lo md:flex-row md:items-center md:justify-between">
           <span>© {new Date().getFullYear()} CDVRSWRLD. All rights reserved.</span>
-          <span>Built independently. No marketplace, no middleman.</span>
+        
         </div>
       </div>
     </footer>

@@ -9,7 +9,7 @@ import type { Prisma } from "@prisma/client";
 
 export const metadata: Metadata = {
   title: "Shop beats",
-  description: "Browse lofi hip hop, amapiano, and miami bass beats. Filter by genre, mood, BPM, and key.",
+  description: "Browse beats. Filter by genre, mood, BPM, and key.",
 };
 
 const PAGE_SIZE = 24;
