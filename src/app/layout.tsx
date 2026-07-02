@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     template: "%s · CDVRS",
   },
   description:
-    "Lofi hip hop, amapiano, and miami bass beats produced by CDVRS. License instantly, download immediately, own your sound.",
+    "Beats produced by CDVRS. License instantly, download immediately, own your sound.",
   openGraph: {
     type: "website",
     siteName: "CDVRS",
