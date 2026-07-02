@@ -1,7 +1,8 @@
 import { Resend } from "resend";
 import { getSiteUrl } from "@/lib/utils";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resendApiKey = process.env.RESEND_API_KEY?.trim();
+const resend = resendApiKey ? new Resend(resendApiKey) : null;
 const FROM = process.env.EMAIL_FROM || "CDVRS <orders@cdvrswrld.com>";
 const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "CDVRS";
 const SITE_URL = getSiteUrl();
@@ -12,6 +13,19 @@ type OrderEmailItem = {
   price: string;
   downloadUrl: string;
 };
+
+async function sendWithFallback(handler: () => Promise<unknown>) {
+  if (!resend) {
+    return { data: null, error: null };
+  }
+
+  try {
+    return await handler();
+  } catch (error) {
+    console.error("Email send failed", error);
+    return { data: null, error };
+  }
+}
 
 export async function sendOrderConfirmationEmail(params: {
   to: string;
@@ -51,31 +65,37 @@ export async function sendOrderConfirmationEmail(params: {
     </div>
   </div>`;
 
-  return resend.emails.send({
-    from: FROM,
-    to,
-    subject: `Your ${SITE_NAME} order #${orderNumber}`,
-    html,
-  });
+  return sendWithFallback(() =>
+    resend!.emails.send({
+      from: FROM,
+      to,
+      subject: `Your ${SITE_NAME} order #${orderNumber}`,
+      html,
+    })
+  );
 }
 
 export async function sendContactNotification(params: { name: string; email: string; message: string }) {
-  return resend.emails.send({
-    from: FROM,
-    to: process.env.ADMIN_EMAIL || FROM,
-    replyTo: params.email,
-    subject: `New contact form message from ${params.name}`,
-    text: params.message,
-  });
+  return sendWithFallback(() =>
+    resend!.emails.send({
+      from: FROM,
+      to: process.env.ADMIN_EMAIL || FROM,
+      replyTo: params.email,
+      subject: `New contact form message from ${params.name}`,
+      text: params.message,
+    })
+  );
 }
 
 export async function sendNewsletterWelcome(to: string) {
-  return resend.emails.send({
-    from: FROM,
-    to,
-    subject: `Welcome to ${SITE_NAME}`,
-    html: `<p style="font-family:Arial,sans-serif;">You're in. New beat drops and exclusive discounts land in your inbox first. Browse the shop: <a href="${SITE_URL}/shop">${SITE_URL}/shop</a></p>`,
-  });
+  return sendWithFallback(() =>
+    resend!.emails.send({
+      from: FROM,
+      to,
+      subject: `Welcome to ${SITE_NAME}`,
+      html: `<p style="font-family:Arial,sans-serif;">You're in. New beat drops and exclusive discounts land in your inbox first. Browse the shop: <a href="${SITE_URL}/shop">${SITE_URL}/shop</a></p>`,
+    })
+  );
 }
 
 function escapeHtml(str: string) {
