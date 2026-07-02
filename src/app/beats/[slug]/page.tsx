@@ -10,6 +10,7 @@ import { getSiteUrl } from "@/lib/utils";
 import WaveformPlayer from "@/components/WaveformPlayer";
 import LicenseCard from "@/components/LicenseCard";
 import BeatCard from "@/components/BeatCard";
+import FreePreviewCartButton from "@/components/FreePreviewCartButton";
 import ShareButtons from "@/components/ShareButtons";
 import WishlistButton from "@/components/WishlistButton";
 
@@ -94,6 +95,28 @@ export default async function BeatDetailPage({ params }: { params: { slug: strin
               </div>
             )}
           </div>
+
+          {previewUrl && (
+            <div className="mt-6 rounded-xs border border-line bg-panel p-5">
+              <div className="mb-3 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h2 className="font-display text-lg font-bold text-hi">Free tagged preview</h2>
+                  <p className="mt-1 text-sm leading-relaxed text-lo">
+                    Add the tagged preview to your cart for free. This version is intended for demos, previews, and nonprofit use only.
+                  </p>
+                </div>
+                <FreePreviewCartButton
+                  beatId={beat.id}
+                  beatTitle={beat.title}
+                  beatSlug={beat.slug}
+                  artworkUrl={artworkUrl}
+                />
+              </div>
+              <p className="text-xs text-lo">
+                The tagged preview is free, but commercial use requires a paid license. You can still complete checkout through Stripe for any other paid items in your cart.
+              </p>
+            </div>
+          )}
         </div>
       </div>
 
