@@ -1,0 +1,89 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #0a0b0d;
+  color: #f3f4f1;
+}
+
+::selection {
+  background: #2e5cff;
+  color: #f3f4f1;
+}
+
+/* thin dark scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0a0b0d;
+}
+::-webkit-scrollbar-thumb {
+  background: #23262c;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #2e5cff;
+}
+
+/* focus visibility, always keep this even when styling buttons/links */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid #2e5cff;
+  outline-offset: 2px;
+}
+
+/* Signature: tempo/key readout, styled like a sampler's LED display */
+.led-readout {
+  font-family: var(--font-mono), monospace;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.05em;
+  background: #0a0b0d;
+  border: 1px solid #23262c;
+  color: #2e5cff;
+  text-shadow: 0 0 8px rgba(46, 92, 255, 0.5);
+}
+
+.led-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: #2e5cff;
+  box-shadow: 0 0 6px rgba(46, 92, 255, 0.8);
+}
+
+/* static waveform bars fallback (used before wavesurfer mounts, or in cards) */
+.waveform-static {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 100%;
+}
+.waveform-static span {
+  flex: 1;
+  min-width: 2px;
+  background: #23262c;
+  border-radius: 1px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

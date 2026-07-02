@@ -1,0 +1,214 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ───────────────────────── Users ─────────────────────────
+
+model Admin {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  createdAt    DateTime @default(now())
+}
+
+model Customer {
+  id           String         @id @default(cuid())
+  email        String         @unique
+  passwordHash String?
+  name         String?
+  createdAt    DateTime       @default(now())
+  orders       Order[]
+  wishlist     WishlistItem[]
+}
+
+// ───────────────────────── Catalog ─────────────────────────
+
+enum BeatStatus {
+  DRAFT
+  PUBLISHED
+}
+
+model Beat {
+  id          String     @id @default(cuid())
+  slug        String     @unique
+  title       String
+  description String?    @db.Text
+
+  artworkKey  String? // R2 object key (public)
+  previewKey  String? // tagged/watermarked mp3 (public)
+
+  bpm         Int
+  key         String // musical key, e.g. "A Minor"
+  genre       String
+  mood        String
+  tags        String[]
+
+  playCount     Int      @default(0)
+  featured      Boolean  @default(false)
+  status        BeatStatus @default(DRAFT)
+  exclusiveSold Boolean  @default(false)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  files       BeatFile[]
+  licenses    License[]
+  orderItems  OrderItem[]
+  wishlistedBy WishlistItem[]
+
+  @@index([genre])
+  @@index([mood])
+  @@index([status])
+}
+
+enum FileKind {
+  MP3
+  WAV
+  STEMS
+  TRACKOUT
+  OTHER
+}
+
+// Full-resolution deliverable files — private, only ever served via signed download tokens
+model BeatFile {
+  id         String   @id @default(cuid())
+  beatId     String
+  beat       Beat     @relation(fields: [beatId], references: [id], onDelete: Cascade)
+  kind       FileKind
+  storageKey String // private R2 object key
+  fileName   String
+  sizeBytes  Int?
+  createdAt  DateTime @default(now())
+
+  @@index([beatId])
+}
+
+// Reusable license type defaults, editable from the admin dashboard
+model LicenseTemplate {
+  id                 String   @id @default(cuid())
+  name               String // "MP3 Lease", "WAV Lease", "Premium Lease", "Unlimited Lease", "Exclusive Rights"
+  description        String?  @db.Text
+  defaultPrice       Decimal  @db.Decimal(10, 2)
+  fileFormats        String[] // e.g. ["MP3"]
+  streamLimit        Int? // null = unlimited
+  distributionLimit  Int? // sales/streams cap, null = unlimited
+  musicVideos        Boolean  @default(false)
+  performanceRights  Boolean  @default(false)
+  commercialUse      Boolean  @default(true)
+  isExclusive        Boolean  @default(false)
+  agreementText      String   @db.Text
+  sortOrder          Int      @default(0)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  licenses License[]
+}
+
+// A license as offered on a specific beat (price/terms can override the template)
+model License {
+  id                String   @id @default(cuid())
+  beatId            String
+  beat              Beat     @relation(fields: [beatId], references: [id], onDelete: Cascade)
+  templateId        String
+  template          LicenseTemplate @relation(fields: [templateId], references: [id])
+
+  name              String
+  price             Decimal  @db.Decimal(10, 2)
+  fileFormats       String[]
+  streamLimit       Int?
+  distributionLimit Int?
+  musicVideos       Boolean  @default(false)
+  performanceRights Boolean  @default(false)
+  commercialUse     Boolean  @default(true)
+  isExclusive       Boolean  @default(false)
+  agreementText     String   @db.Text
+  sortOrder         Int      @default(0)
+
+  orderItems OrderItem[]
+
+  @@index([beatId])
+}
+
+// ───────────────────────── Commerce ─────────────────────────
+
+enum OrderStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+model Order {
+  id                String      @id @default(cuid())
+  orderNumber       String      @unique
+  customerId        String?
+  customer          Customer?   @relation(fields: [customerId], references: [id])
+  customerEmail     String
+  customerName      String?
+  status            OrderStatus @default(PENDING)
+  stripeSessionId   String?     @unique
+  stripePaymentIntent String?
+  subtotal          Decimal     @db.Decimal(10, 2)
+  total             Decimal     @db.Decimal(10, 2)
+  currency          String      @default("gbp")
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  items OrderItem[]
+
+  @@index([customerEmail])
+  @@index([status])
+}
+
+model OrderItem {
+  id                String   @id @default(cuid())
+  orderId           String
+  order             Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  beatId            String
+  beat              Beat     @relation(fields: [beatId], references: [id])
+  licenseId         String
+  license           License  @relation(fields: [licenseId], references: [id])
+
+  beatTitle         String // snapshot at time of sale
+  licenseName       String // snapshot at time of sale
+  price             Decimal  @db.Decimal(10, 2)
+
+  downloadToken     String   @unique @default(cuid())
+  downloadExpiresAt DateTime
+  downloadCount     Int      @default(0)
+
+  @@index([orderId])
+  @@index([beatId])
+}
+
+model WishlistItem {
+  id         String   @id @default(cuid())
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  beatId     String
+  beat       Beat     @relation(fields: [beatId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@unique([customerId, beatId])
+}
+
+model NewsletterSubscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+}
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  subject   String?
+  message   String   @db.Text
+  createdAt DateTime @default(now())
+}
