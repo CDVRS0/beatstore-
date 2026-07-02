@@ -64,7 +64,7 @@ export default async function BeatDetailPage({ params }: { params: { slug: strin
           </div>
         </div>
 
-        <div className="md:pl-4">
+        <div className="md:pl-8 lg:pl-10">
           <h1 className="font-display text-3xl font-bold text-hi">{beat.title}</h1>
           <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
             <span className="led-readout rounded-xs px-2 py-1">{beat.bpm} BPM</span>
@@ -86,7 +86,7 @@ export default async function BeatDetailPage({ params }: { params: { slug: strin
             </div>
           )}
 
-          <div className="mt-6 ml-auto max-w-4xl">
+          <div className="mt-6 ml-auto max-w-[calc(100%-4rem)] xl:max-w-[calc(100%-6rem)]">
             {previewUrl ? (
               <WaveformPlayer beatId={beat.id} title={beat.title} artworkUrl={artworkUrl} previewUrl={previewUrl} />
             ) : (
@@ -97,7 +97,7 @@ export default async function BeatDetailPage({ params }: { params: { slug: strin
           </div>
 
           {previewUrl && (
-            <div className="mt-6 ml-auto max-w-4xl rounded-xs border border-line bg-panel p-5">
+            <div className="mt-6 ml-auto max-w-[calc(100%-4rem)] xl:max-w-[calc(100%-6rem)] rounded-xs border border-line bg-panel p-5">
               <div className="mb-3 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <h2 className="font-display text-lg font-bold text-hi">Free tagged preview</h2>
