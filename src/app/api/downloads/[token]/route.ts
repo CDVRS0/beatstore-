@@ -14,7 +14,14 @@ export async function GET(req: Request, { params }: { params: { token: string } 
     return new NextResponse("This download link has expired. Contact us for a re-send.", { status: 410 });
   }
 
-  const matchingFiles = item.beat.files.filter((f) => item.license.fileFormats.includes(f.kind));
+  const isTaggedPreview = item.licenseName === "Tagged preview" && item.license.price.toString() === "0";
+  const matchingFiles = isTaggedPreview
+    ? item.beat.previewKey
+      ? [{ kind: "MP3", fileName: `${item.beatTitle} - tagged preview.mp3`, storageKey: item.beat.previewKey }]
+      : []
+    : item.beat.files
+        .filter((f) => item.license.fileFormats.includes(f.kind))
+        .map((f) => ({ kind: f.kind, fileName: f.fileName, storageKey: f.storageKey }));
 
   if (matchingFiles.length === 0) {
     return new NextResponse("No files are attached to this beat yet. Contact us for support.", { status: 404 });

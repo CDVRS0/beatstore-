@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
 import { usePlayerStore } from "@/context/PlayerContext";
 
 export default function WaveformPlayer({
@@ -14,53 +13,8 @@ export default function WaveformPlayer({
   artworkUrl: string | null;
   previewUrl: string;
 }) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const wavesurferRef = useRef<any>(null);
-  const [ready, setReady] = useState(false);
   const { track, isPlaying, play, toggle } = usePlayerStore();
   const isCurrent = track?.beatId === beatId;
-
-  useEffect(() => {
-    let destroyed = false;
-    (async () => {
-      const WaveSurfer = (await import("wavesurfer.js")).default;
-      if (destroyed || !containerRef.current) return;
-      const ws = WaveSurfer.create({
-        container: containerRef.current,
-        waveColor: "#23262C",
-        progressColor: "#2E5CFF",
-        cursorColor: "#F3F4F1",
-        barWidth: 3,
-        barGap: 2,
-        barRadius: 2,
-        height: 96,
-        url: previewUrl,
-        interact: true,
-      });
-      ws.on("ready", () => setReady(true));
-      ws.on("click", () => {
-        if (!isCurrent) play({ beatId, title, artworkUrl, previewUrl });
-      });
-      wavesurferRef.current = ws;
-    })();
-    return () => {
-      destroyed = true;
-      wavesurferRef.current?.destroy();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [previewUrl]);
-
-  // keep this waveform's play-head in sync with the global player only when it's the active track
-  useEffect(() => {
-    const ws = wavesurferRef.current;
-    if (!ws) return;
-    if (isCurrent) {
-      if (isPlaying && !ws.isPlaying()) ws.play();
-      if (!isPlaying && ws.isPlaying()) ws.pause();
-    } else {
-      if (ws.isPlaying()) ws.pause();
-    }
-  }, [isCurrent, isPlaying]);
 
   function handleMainButton() {
     if (isCurrent) toggle();
@@ -77,9 +31,20 @@ export default function WaveformPlayer({
         >
           {isCurrent && isPlaying ? "❚❚" : "▶"}
         </button>
-        <div ref={containerRef} className="w-full flex-1" />
+        <div
+          className="flex h-24 w-full flex-1 cursor-pointer items-center gap-1"
+          onClick={handleMainButton}
+          aria-hidden="true"
+        >
+          {Array.from({ length: 64 }, (_, index) => (
+            <span
+              key={index}
+              className={`w-full rounded-full ${isCurrent && isPlaying ? "bg-blue" : "bg-line"}`}
+              style={{ height: `${24 + ((index * 17) % 56)}%` }}
+            />
+          ))}
+        </div>
       </div>
-      {!ready && <p className="mt-2 text-xs text-lo">Loading waveform…</p>}
       <p className="mt-3 text-xs text-lo">Tagged preview. Untagged files are unlocked after purchase.</p>
     </div>
   );

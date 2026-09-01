@@ -6,7 +6,8 @@ import { generateOrderNumber } from "@/lib/utils";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { publicUrl } from "@/lib/r2";
-import { getSiteUrl } from "@/lib/utils";
+import { formatPrice, getSiteUrl } from "@/lib/utils";
+import { sendOrderConfirmationEmail } from "@/lib/email";
 
 const schema = z.object({
   email: z.string().email(),
@@ -120,6 +121,7 @@ export async function POST(req: Request) {
         })),
       },
     },
+    include: { items: true },
   });
 
   const paidLineItems = allLicenses
@@ -138,6 +140,21 @@ export async function POST(req: Request) {
 
   if (paidLineItems.length === 0) {
     await prisma.order.update({ where: { id: order.id }, data: { status: "PAID" } });
+    try {
+      await sendOrderConfirmationEmail({
+        to: order.customerEmail,
+        orderNumber: order.orderNumber,
+        total: formatPrice(Number(order.total)).replace("£", ""),
+        items: order.items.map((item) => ({
+          beatTitle: item.beatTitle,
+          licenseName: item.licenseName,
+          price: formatPrice(Number(item.price)).replace("£", ""),
+          downloadUrl: `${siteUrl}/api/downloads/${item.downloadToken}`,
+        })),
+      });
+    } catch (err) {
+      console.error("Failed to send free preview confirmation email:", err);
+    }
     return NextResponse.json({ url: `${siteUrl}/order/success?order=${orderNumber}` });
   }
 
