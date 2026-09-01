@@ -17,14 +17,14 @@ const siteUrl = getSiteUrl();
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "CDVRS — Beats for artists building their own world",
-    template: "%s · CDVRS",
+    default: "CDVLABS — Beats for artists building their own world",
+    template: "%s · CDVLABS",
   },
   description:
     "Beats produced by CDVRS. License instantly, download immediately, own your sound.",
   openGraph: {
     type: "website",
-    siteName: "CDVRS",
+    siteName: "CDVLABS",
   },
   twitter: { card: "summary_large_image" },
 };
