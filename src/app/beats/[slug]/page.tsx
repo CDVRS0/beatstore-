@@ -130,7 +130,7 @@ export default async function BeatDetailPage({ params }: { params: { slug: strin
           </div>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {beat.licenses.map((license, i) => (
+            {beat.licenses.filter((license) => license.name !== "Tagged preview").map((license, i) => (
               <LicenseCard
                 key={license.id}
                 beatId={beat.id}
