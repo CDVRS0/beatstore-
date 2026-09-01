@@ -1,15 +1,24 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import Image from "next/image";
 import { usePlayerStore } from "@/context/PlayerContext";
 
 export default function PersistentPlayer() {
-  const { track, isPlaying, toggle, close } = usePlayerStore();
+  const { track, isPlaying, currentTime, duration, toggle, close } = usePlayerStore();
   const audioRef = useRef<HTMLAudioElement>(null);
-  const [progress, setProgress] = useState(0);
-  const [duration, setDuration] = useState(0);
   const countedRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    usePlayerStore.setState({
+      seekTo: (time: number) => {
+        const audio = audioRef.current;
+        if (!audio || !Number.isFinite(time)) return;
+        audio.currentTime = Math.max(0, Math.min(time, audio.duration || time));
+      },
+    });
+    return () => usePlayerStore.setState({ seekTo: () => {} });
+  }, []);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -25,8 +34,7 @@ export default function PersistentPlayer() {
   function handleTimeUpdate() {
     const audio = audioRef.current;
     if (!audio) return;
-    setProgress(audio.currentTime);
-    setDuration(audio.duration || 0);
+    usePlayerStore.setState({ currentTime: audio.currentTime, duration: audio.duration || 0 });
 
     // count a play once the listener has heard at least 5s of the preview
     if (track && audio.currentTime > 5 && countedRef.current !== track.beatId) {
@@ -45,7 +53,7 @@ export default function PersistentPlayer() {
 
   if (!track) return null;
 
-  const pct = duration ? (progress / duration) * 100 : 0;
+  const pct = duration ? (currentTime / duration) * 100 : 0;
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-50 border-t border-line bg-panel/95 backdrop-blur">
@@ -61,7 +69,7 @@ export default function PersistentPlayer() {
         aria-label="Seek"
         aria-valuemin={0}
         aria-valuemax={duration}
-        aria-valuenow={progress}
+        aria-valuenow={currentTime}
       >
         <div className="h-full bg-blue" style={{ width: `${pct}%` }} />
       </div>
@@ -81,7 +89,7 @@ export default function PersistentPlayer() {
         <div className="min-w-0 flex-1">
           <div className="truncate text-sm font-bold text-hi">{track.title}</div>
           <div className="font-mono text-xs text-lo">
-            {formatTime(progress)} / {formatTime(duration)}
+            {formatTime(currentTime)} / {formatTime(duration)}
           </div>
         </div>
         <button onClick={close} className="text-lo hover:text-hi" aria-label="Close player">

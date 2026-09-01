@@ -16,8 +16,9 @@ export default function WaveformPlayer({
 }) {
   const waveformRef = useRef<HTMLDivElement>(null);
   const [waveformReady, setWaveformReady] = useState(false);
-  const { track, isPlaying, play, toggle } = usePlayerStore();
+  const { track, isPlaying, currentTime, play, toggle, seekTo } = usePlayerStore();
   const isCurrent = track?.beatId === beatId;
+  const wavesurferRef = useRef<any>(null);
 
   useEffect(() => {
     if (!waveformRef.current) return;
@@ -40,6 +41,7 @@ export default function WaveformPlayer({
         interact: false,
         hideScrollbar: true,
       });
+      wavesurferRef.current = wavesurfer;
       wavesurfer.on("ready", () => {
         if (!destroyed) setWaveformReady(true);
       });
@@ -48,8 +50,15 @@ export default function WaveformPlayer({
     return () => {
       destroyed = true;
       wavesurfer?.destroy();
+      wavesurferRef.current = null;
     };
   }, [previewUrl]);
+
+  useEffect(() => {
+    const wavesurfer = wavesurferRef.current;
+    if (!wavesurfer || !isCurrent || !Number.isFinite(currentTime)) return;
+    wavesurfer.setTime(currentTime);
+  }, [currentTime, isCurrent]);
 
   function handleMainButton() {
     if (isCurrent) toggle();
@@ -68,7 +77,15 @@ export default function WaveformPlayer({
         </button>
         <div
           className="flex h-24 w-full flex-1 cursor-pointer items-center gap-1"
-          onClick={handleMainButton}
+          onClick={(event) => {
+            const rect = event.currentTarget.getBoundingClientRect();
+            const percentage = (event.clientX - rect.left) / rect.width;
+            if (isCurrent && usePlayerStore.getState().duration) {
+              seekTo(percentage * usePlayerStore.getState().duration);
+            } else {
+              handleMainButton();
+            }
+          }}
           aria-hidden="true"
         >
           <div ref={waveformRef} className="h-24 w-full" />

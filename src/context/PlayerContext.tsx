@@ -12,6 +12,9 @@ export type PlayerTrack = {
 type PlayerState = {
   track: PlayerTrack | null;
   isPlaying: boolean;
+  currentTime: number;
+  duration: number;
+  seekTo: (time: number) => void;
   play: (track: PlayerTrack) => void;
   toggle: () => void;
   pause: () => void;
@@ -26,12 +29,15 @@ type PlayerState = {
 export const usePlayerStore = create<PlayerState>((set, get) => ({
   track: null,
   isPlaying: false,
+  currentTime: 0,
+  duration: 0,
+  seekTo: () => {},
   play: (track) => {
     const current = get().track;
     if (current?.beatId === track.beatId) {
       set({ isPlaying: true });
     } else {
-      set({ track, isPlaying: true });
+      set({ track, isPlaying: true, currentTime: 0, duration: 0 });
     }
   },
   toggle: () => set((s) => ({ isPlaying: !s.isPlaying })),
