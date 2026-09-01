@@ -12,11 +12,11 @@ type BeatWithLicensesRaw = {
   genre: string;
   mood: string;
   exclusiveSold: boolean;
-  licenses: { price: any }[];
+  licenses: { name: string; price: any }[];
 };
 
 export function toBeatCard(beat: BeatWithLicensesRaw): BeatCardData {
-  const prices = beat.licenses.map((l) => Number(l.price));
+  const prices = beat.licenses.filter((l) => l.name !== "Tagged preview").map((l) => Number(l.price));
   return {
     id: beat.id,
     slug: beat.slug,

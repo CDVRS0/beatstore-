@@ -44,7 +44,7 @@ export default async function BeatDetailPage({ params }: { params: { slug: strin
       OR: [{ genre: beat.genre }, { mood: beat.mood }],
     },
     take: 4,
-    include: { licenses: { select: { price: true } } },
+    include: { licenses: { select: { name: true, price: true } } },
   });
 
   const artworkUrl = beat.artworkKey ? publicUrl(beat.artworkKey) : null;

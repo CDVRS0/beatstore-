@@ -17,7 +17,7 @@ type AdminBeat = {
   bpm: number;
   key: string;
   genre: string;
-  licenses: { price: string }[];
+  licenses: { name: string; price: string }[];
   _count: { orderItems: number };
 };
 
@@ -121,7 +121,8 @@ export default function AdminBeatsPage() {
             </thead>
             <tbody className="divide-y divide-line bg-panel/50">
               {beats.map((beat) => {
-                const minPrice = beat.licenses.length ? Math.min(...beat.licenses.map((l) => Number(l.price))) : null;
+                const paidLicenses = beat.licenses.filter((l) => l.name !== "Tagged preview");
+                const minPrice = paidLicenses.length ? Math.min(...paidLicenses.map((l) => Number(l.price))) : null;
                 return (
                   <tr key={beat.id}>
                     <td className="flex items-center gap-3 p-3">

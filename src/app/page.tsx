@@ -10,7 +10,7 @@ import HeroPlayer from "@/components/HeroPlayer";
 export const revalidate = 60;
 
 async function getData() {
-  const licenseSelect = { select: { price: true } };
+  const licenseSelect = { select: { name: true, price: true } };
 
   const [hero, featured, recent, bestSellerRows] = await Promise.all([
     prisma.beat.findFirst({

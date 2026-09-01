@@ -47,7 +47,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Record<
       orderBy,
       skip: (currentPage - 1) * PAGE_SIZE,
       take: PAGE_SIZE,
-      include: { licenses: { select: { price: true } } },
+      include: { licenses: { select: { name: true, price: true } } },
     }),
     prisma.beat.count({ where }),
   ]);
