@@ -12,11 +12,16 @@ export default function CartPage() {
   const { items, removeItem, total } = useCartStore();
   const { data: session } = useSession();
   const [email, setEmail] = useState(session?.user?.email || "");
+  const [artistLegalName, setArtistLegalName] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function handleCheckout() {
     if (!email) {
       toast.error("Enter your email to receive the receipt and downloads");
+      return;
+    }
+    if (artistLegalName.trim().length < 2) {
+      toast.error("Enter your full legal name for the license contract");
       return;
     }
     if (items.some((i) => !i.agreementAccepted)) {
@@ -30,6 +35,7 @@ export default function CartPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email,
+          artistLegalName: artistLegalName.trim(),
           items: items.map((i) => ({ beatId: i.beatId, licenseId: i.licenseId })),
         }),
       });
@@ -94,6 +100,18 @@ export default function CartPage() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="you@email.com"
+          className="w-full rounded-xs border border-line bg-panel px-4 py-3 text-sm text-hi placeholder:text-lo focus:border-blue"
+        />
+      </div>
+
+      <div className="mt-4">
+        <label className="mb-1 block text-xs text-lo">Artist full legal name (for the license contract)</label>
+        <input
+          type="text"
+          required
+          value={artistLegalName}
+          onChange={(e) => setArtistLegalName(e.target.value)}
+          placeholder="Your full legal name"
           className="w-full rounded-xs border border-line bg-panel px-4 py-3 text-sm text-hi placeholder:text-lo focus:border-blue"
         />
       </div>

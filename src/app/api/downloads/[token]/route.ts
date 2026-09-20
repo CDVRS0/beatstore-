@@ -52,12 +52,29 @@ export async function GET(req: Request, { params }: { params: { token: string } 
       a.file { display:flex; justify-content:space-between; align-items:center; padding: 14px 16px; margin-bottom:10px; border:1px solid #23262C; border-radius:4px; color:#F3F4F1; text-decoration:none; }
       a.file:hover { border-color:#2E5CFF; }
       .kind { font-family: monospace; color:#2E5CFF; font-size:12px; }
+      .contract { margin-top:32px; padding-top:28px; border-top:1px solid #23262C; }
+      .contract h2 { font-size:16px; margin:0 0 16px; }
+      .contract dl { display:grid; grid-template-columns:140px 1fr; gap:8px 16px; margin:0 0 20px; font-size:13px; }
+      .contract dt { color:#8A8F98; }
+      .contract dd { margin:0; }
+      .terms { white-space:pre-wrap; color:#C5C8CD; font-size:13px; line-height:1.6; }
+      button.print { width:100%; margin-top:20px; padding:12px 16px; border:0; border-radius:4px; background:#2E5CFF; color:#F3F4F1; font-weight:700; cursor:pointer; }
+      @media print {
+        body { background:#fff; color:#111; padding:0; }
+        .card { max-width:none; background:#fff; border:0; padding:0; }
+        h1, .contract h2, .contract dd { color:#111; }
+        p.sub, .contract dt, .terms { color:#333; }
+        a.file, .contract { border-color:#ccc; }
+        .files, .print { display:none; }
+        .contract { margin-top:0; padding-top:0; border-top:0; }
+      }
     </style>
   </head>
   <body>
     <div class="card">
       <h1>${escapeHtml(item.beatTitle)}</h1>
       <p class="sub">${escapeHtml(item.licenseName)} · Links expire ${item.downloadExpiresAt.toDateString()}</p>
+      <div class="files">
       ${links
         .map(
           (l) => `<a class="file" href="${l.url}" download>
@@ -66,6 +83,22 @@ export async function GET(req: Request, { params }: { params: { token: string } 
           </a>`
         )
         .join("")}
+      </div>
+      <section class="contract">
+        <h2>License contract</h2>
+        <dl>
+          <dt>Artist legal name</dt>
+          <dd>${escapeHtml(item.order.artistLegalName || item.order.customerName || "Not provided")}</dd>
+          <dt>Beat</dt>
+          <dd>${escapeHtml(item.beatTitle)}</dd>
+          <dt>License</dt>
+          <dd>${escapeHtml(item.licenseName)}</dd>
+          <dt>Purchase date</dt>
+          <dd>${escapeHtml((item.order.paidAt || item.order.createdAt).toLocaleDateString("en-GB"))}</dd>
+        </dl>
+        <div class="terms">${escapeHtml(item.agreementText || item.license.agreementText)}</div>
+        <button class="print" type="button" onclick="window.print()">Print / Save contract as PDF</button>
+      </section>
     </div>
   </body>
   </html>`;

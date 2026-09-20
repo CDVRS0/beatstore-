@@ -23,7 +23,11 @@ export async function POST(req: Request) {
 
     const order = await prisma.order.update({
       where: { id: orderId },
-      data: { status: "PAID", stripePaymentIntent: session.payment_intent as string },
+      data: {
+        status: "PAID",
+        paidAt: new Date(event.created * 1000),
+        stripePaymentIntent: session.payment_intent as string,
+      },
       include: { items: true },
     });
 

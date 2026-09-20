@@ -11,6 +11,7 @@ import { sendOrderConfirmationEmail } from "@/lib/email";
 
 const schema = z.object({
   email: z.string().email(),
+  artistLegalName: z.string().trim().min(2).max(200),
   items: z.array(z.object({ beatId: z.string(), licenseId: z.string() })).min(1),
 });
 
@@ -60,7 +61,7 @@ export async function POST(req: Request) {
   if (!parsed.success) {
     return NextResponse.json({ error: "Invalid checkout payload" }, { status: 400 });
   }
-  const { email, items } = parsed.data;
+  const { email, artistLegalName, items } = parsed.data;
 
   const paidLicenseIds = items.filter((item) => !item.licenseId.startsWith(PREVIEW_PREFIX)).map((item) => item.licenseId);
   const paidLicenses = paidLicenseIds.length
@@ -107,6 +108,7 @@ export async function POST(req: Request) {
       orderNumber,
       customerId,
       customerEmail: email,
+      artistLegalName,
       status: "PENDING",
       subtotal,
       total: subtotal,
@@ -117,6 +119,7 @@ export async function POST(req: Request) {
           beatTitle: l.beat.title,
           licenseName: l.name,
           price: l.price,
+          agreementText: l.agreementText,
           downloadExpiresAt,
         })),
       },
@@ -139,7 +142,7 @@ export async function POST(req: Request) {
     }));
 
   if (paidLineItems.length === 0) {
-    await prisma.order.update({ where: { id: order.id }, data: { status: "PAID" } });
+    await prisma.order.update({ where: { id: order.id }, data: { status: "PAID", paidAt: new Date() } });
     try {
       await sendOrderConfirmationEmail({
         to: order.customerEmail,

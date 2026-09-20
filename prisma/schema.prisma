@@ -151,12 +151,14 @@ model Order {
   customer          Customer?   @relation(fields: [customerId], references: [id])
   customerEmail     String
   customerName      String?
+  artistLegalName   String?
   status            OrderStatus @default(PENDING)
   stripeSessionId   String?     @unique
   stripePaymentIntent String?
   subtotal          Decimal     @db.Decimal(10, 2)
   total             Decimal     @db.Decimal(10, 2)
   currency          String      @default("gbp")
+  paidAt            DateTime?
   createdAt         DateTime    @default(now())
   updatedAt         DateTime    @updatedAt
 
@@ -178,6 +180,7 @@ model OrderItem {
   beatTitle         String // snapshot at time of sale
   licenseName       String // snapshot at time of sale
   price             Decimal  @db.Decimal(10, 2)
+  agreementText     String?  @db.Text // snapshot of the accepted terms at time of sale
 
   downloadToken     String   @unique @default(cuid())
   downloadExpiresAt DateTime
